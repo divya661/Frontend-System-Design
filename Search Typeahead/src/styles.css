@@ -27,7 +27,8 @@ input:focus{
     border:1px solid silver;
 }
 
-.suggestions-visible{
+.suggestionsVisible{
+    cursor: pointer;
     display: block;
 
 }

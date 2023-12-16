@@ -1,22 +1,21 @@
-import {getSuggestions} from "./utils.js";
-// import "./styles.css";
+import {getSuggestions,debounce} from "./utils.js";
 
-getSuggestions("ma").then((i)=>{
-    console.log(i);
-})
-
+// getSuggestions("ma").then((i)=>{
+//     console.log(i);
+// })
 const inputBox = document.getElementById('search-input');
 const suggestionBox = document.getElementById('suggestions-wrapper');
 
 const resetState = () => {
-    suggestionBox.classList.remove("suggestions-visible");
+    suggestionBox.classList.remove('suggestionsVisible');
 }
-const renderDropdownItems = (list) => {
+const renderDropdownItems = (list=[]) => {
     const suggestFragment = document.createDocumentFragment();
     list.forEach(item => {
         const el = document.createElement('div');
         el.innerHTML = item;
         el.classList.add('dropdown-item');
+        el.setAttribute('data-key',item);
         suggestFragment.appendChild(el);
     });
     
@@ -30,7 +29,7 @@ const handleSearch = async (keyword) => {
     const result = await getSuggestions(keyword);
     console.log(result);
    if(result.length){
-    suggestionBox.classList.add('suggestions-visible');
+    suggestionBox.classList.add('suggestionsVisible');
     renderDropdownItems(result);
    } 
     console.log(result);
@@ -38,6 +37,7 @@ const handleSearch = async (keyword) => {
 
 const handleInputChange = (event) => {
     const value = event.target.value;
+    console.log(value);
     if(value){
        handleSearch(value);
     } else {
@@ -45,7 +45,19 @@ const handleInputChange = (event) => {
     }
 }
 
+const handleSelect = (event) => {
+    const {key} = event.target.dataset;
+    if(key){
+        inputBox.value = key;
+        resetState();
+    }
+};
+
+
 (()=>{
-    console.log("i am call");
-    inputBox.addEventListener("input",handleInputChange);
+    inputBox.addEventListener("input",debounce(handleInputChange,200));
+    // Event bubbles from bottom to top
+// Every time a children is clicked, parent on-click will be called therefore it is better to attach on parent event listener
+    suggestionBox.addEventListener('click',handleSelect);
 })();
+
