@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animate Elements in Sequence</title>
+</head>
+
+<body>
+    <div id="entry"></div>
+    <p><span>In Queue:</span><span id="queueCount">0</span></p>
+    <button id="btn">ADD ANIMATION</button>
+    <script>
+        let styleSheet = null;
+        const dynamicAnimation = (name, styles) => {
+            if (!styleSheet) {
+                styleSheet = document.createElement("style");
+                styleSheet.type = "text/css";
+                document.head.appendChild(styleSheet);
+            }
+
+            styleSheet.sheet.insertRule(
+                `@keyframes ${name} {${styles}}`,
+                styleSheet.length
+            );
+        };
+
+        let count = 0;
+        const updateCount = (val) => {
+            count += val;
+            document.getElementById("queueCount").innerText = count;
+        };
+
+        const generateLoadingBar = () => {
+            const fragment = document.createDocumentFragment();
+            const loadingBar = document.createElement("div");
+
+            // apply styles
+            // animation keyframes
+            dynamicAnimation("loadingBar",
+                `
+        0% {
+            width: 0%;
+        }
+        100% {
+            width: 100%;
+        }`
+            );
+
+            loadingBar.style.height = "10px";
+            loadingBar.style.backgroundColor = "Red";
+            loadingBar.style.width = "0";
+            loadingBar.style.marginBottom = "10px";
+            loadingBar.style.animation = "loadingBar 3s forwards";
+
+            const shadowLoadingBar = document.createElement("div");
+            dynamicAnimation("shadowLoadingBar",
+                `
+0% {
+    width: 0%;
+}
+100% {
+    width: 50%;
+}
+`);
+
+            shadowLoadingBar.style.height = "5px";
+            shadowLoadingBar.style.backgroundColor = "green";
+            shadowLoadingBar.style.width = "0";
+            shadowLoadingBar.style.marginBottom = "10px";
+            shadowLoadingBar.style.animation = "shadowLoadingBar 1.5s forwards";
+
+            fragment.appendChild(loadingBar);
+            fragment.appendChild(shadowLoadingBar);
+
+            const entry = document.getElementById("entry");
+            entry.appendChild(loadngBar);
+            entry.appendChild(fragment);
+
+            loadingBar.addEventListener("animationend", () => {
+                updateCount(-1);
+                if (count > 0) {
+                    generateLoadingBar();
+                }
+            });
+
+            loadingBar.removeEventListener("animationend", () => { });
+
+            shadowLoadingBar.addEventListener("animationend", () => {
+                updateCount(-1);
+                if (count > 0) {
+                    generateLoadingBar();
+                }
+            });
+
+            shadowLoadingBar.removeEventListener("animationend", () => { });
+        };
+
+        document.getElementById("btn").addEventListener("click", (e) => {
+            if (count === 0) {
+                generateLoadingBar();
+            }
+
+            updateCount(1);
+        });
+    </script>
+</body>
+
+</html>
